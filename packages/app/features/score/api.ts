@@ -2,7 +2,7 @@ import { api } from "@/shared/lib/http";
 
 export function submitScore(body: {
   gameId: string;
-  score: string;
+  score: number;
   runTimeMs: number;
 }) {
   return api<{ ok: true }>("/scores", {

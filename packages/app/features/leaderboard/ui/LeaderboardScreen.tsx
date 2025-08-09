@@ -1,27 +1,17 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { View, Text, FlatList, RefreshControl } from "react-native";
+import { useQuery } from "@tanstack/react-query";
 import { fetchLeaderboard } from "../api";
 import type { GameId, LeaderboardItem } from "../model";
 import { GamePicker } from "./GamePicker";
 
 export function LeaderboardScreen() {
   const [gameId, setGameId] = useState<GameId>("reaction");
-  const [items, setItems] = useState<LeaderboardItem[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-
-  async function load(g: GameId) {
-    setIsLoading(true);
-    try {
-      const res = await fetchLeaderboard(g);
-      setItems(res.items);
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    load(gameId);
-  }, [gameId]);
+  const { data, isLoading, refetch, isRefetching } = useQuery({
+    queryKey: ["leaderboard", gameId],
+    queryFn: async () => fetchLeaderboard(gameId),
+    staleTime: 10_000,
+  });
 
   return (
     <View style={{ padding: 16, gap: 12, flex: 1 }}>
@@ -29,12 +19,12 @@ export function LeaderboardScreen() {
       <GamePicker value={gameId} onChange={setGameId} />
 
       <FlatList
-        data={items}
+        data={data?.items as LeaderboardItem[] | undefined}
         keyExtractor={(it, i) => `${it.uid}-${i}`}
         refreshControl={
           <RefreshControl
-            refreshing={isLoading}
-            onRefresh={() => load(gameId)}
+            refreshing={isLoading || isRefetching}
+            onRefresh={() => refetch()}
           />
         }
         renderItem={({ item, index }) => (

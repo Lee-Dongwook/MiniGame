@@ -1,13 +1,32 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { View, Text, Pressable } from "react-native";
+import { router } from "expo-router";
+import { useMutation } from "@tanstack/react-query";
 import { submitScore } from "@/features/score/api";
 
 export default function ReactionScreen() {
-  const [state, setState] = useState<"idle" | "ready" | "now" | "done">("idle");
+  const [state, setState] = useState<
+    "idle" | "ready" | "now" | "between" | "done"
+  >("idle");
   const startRef = useRef<number>(0);
-  const [best, setBest] = useState<number | undefined>();
+  const [round, setRound] = useState<number>(0);
+  const [results, setResults] = useState<number[]>([]);
+  const best = results.length ? Math.min(...results) : undefined;
+  const avg = results.length
+    ? Math.round(results.reduce((a, b) => a + b, 0) / results.length)
+    : undefined;
 
-  function start() {
+  const submitMut = useMutation({
+    mutationFn: async () => {
+      if (!best) return { ok: true } as const;
+      return submitScore({ gameId: "reaction", score: best, runTimeMs: 0 });
+    },
+    onSuccess: () => {
+      router.push("/leaderboard");
+    },
+  });
+
+  function scheduleNextCue() {
     setState("ready");
     const delay = 1500 + Math.random() * 2000;
     setTimeout(() => {
@@ -15,44 +34,73 @@ export default function ReactionScreen() {
       startRef.current = performance.now();
     }, delay);
   }
+
+  function start() {
+    setRound(0);
+    setResults([]);
+    scheduleNextCue();
+  }
   function tap() {
     if (state !== "now") return;
     const ms = Math.round(performance.now() - startRef.current);
-    setBest((prev) => (prev ? Math.min(prev, ms) : ms));
-    setState("done");
-    // TODO: 누적 라운드/평균은 이후
+    setResults((prev) => [...prev, ms]);
+    const nextRound = round + 1;
+    setRound(nextRound);
+    if (nextRound >= 5) {
+      setState("done");
+    } else {
+      setState("between");
+      setTimeout(() => {
+        scheduleNextCue();
+      }, 600);
+    }
   }
 
-  async function submit() {
-    if (!best) return;
-    await submitScore({
-      gameId: "reaction",
-      score: best.toString(),
-      runTimeMs: 0,
-    });
+  function submit() {
+    if (!best || submitMut.isPending) return;
+    submitMut.mutate();
   }
 
   return (
     <View style={{ padding: 16, gap: 12 }}>
-      <Text>Reaction Test</Text>
+      <Text style={{ fontSize: 20, fontWeight: "700" }}>Reaction Test</Text>
+
       {state === "idle" && (
         <Pressable onPress={start}>
           <Text>Start</Text>
         </Pressable>
       )}
+
       {state === "ready" && <Text>Wait...</Text>}
+
       {state === "now" && (
         <Pressable onPress={tap}>
           <Text>지금!</Text>
         </Pressable>
       )}
+
+      {state === "between" && <Text>다음 라운드…</Text>}
+
+      {results.length > 0 && (
+        <View style={{ gap: 6 }}>
+          <Text>Round: {round} / 5</Text>
+          <Text>Last: {results[results.length - 1]} ms</Text>
+          {best !== undefined && <Text>Best: {best} ms</Text>}
+          {avg !== undefined && <Text>Average: {avg} ms</Text>}
+        </View>
+      )}
+
       {state === "done" && (
-        <>
-          <Text>Best: {best} ms</Text>
-          <Pressable onPress={submit}>
-            <Text>Submit</Text>
+        <View style={{ gap: 8 }}>
+          <Text>최고 기록: {best} ms</Text>
+          <Text>평균: {avg} ms</Text>
+          <Pressable onPress={submit} disabled={submitMut.isPending}>
+            <Text>{submitMut.isPending ? "Submitting..." : "Submit"}</Text>
           </Pressable>
-        </>
+          <Pressable onPress={() => router.push("/leaderboard")}>
+            <Text>리더보드 보기</Text>
+          </Pressable>
+        </View>
       )}
     </View>
   );
