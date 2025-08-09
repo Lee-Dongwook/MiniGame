@@ -35,6 +35,22 @@ yarn --cwd packages/app start
 
 See `packages/api/README.md`.
 
+## Testing
+
+### Frontend tests
+
+```bash
+cd packages/app
+yarn test
+```
+
+### Backend tests
+
+```bash
+cd packages/api
+pytest test_score_service.py -v
+```
+
 ## Games
 
 - Reaction, Memory, Stroop Swipe, Quick Math
@@ -51,3 +67,11 @@ Backend returns:
 ## Internationalization
 
 - `i18next` with English/Korean resources
+
+## CI/CD
+
+GitHub Actions runs:
+
+- Frontend linting
+- Backend tests
+- On push to main and PRs

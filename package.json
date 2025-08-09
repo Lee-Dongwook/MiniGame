@@ -36,7 +36,11 @@
   },
   "scripts": {
     "prepare": "husky",
-    "postinstall": "patch-package && husky"
+    "postinstall": "patch-package && husky",
+    "minigame:start": "cd packages/app && yarn run start",
+    "minigame:android": "cd packages/app && yarn run android",
+    "minigame:ios": "cd packages/app && yarn run ios",
+    "minigame:test": "cd packages/app && yarn run test"
   },
   "resolutions": {
     "metro": "^0.81.0",

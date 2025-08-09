@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
-from models.score import SubmitScore
-from deps.auth import verify_firebase_token
-from services.firestore import db
-from services.score_service import save_or_update_score, get_leaderboard
+from ..models.score import SubmitScore
+from ..deps.auth import verify_firebase_token
+from ..services.firestore import db
+from ..services.score_service import save_or_update_score, get_leaderboard
 from typing import Optional
 
 router = APIRouter(prefix="/scores", tags=['scores'])
