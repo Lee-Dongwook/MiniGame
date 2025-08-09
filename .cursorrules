@@ -1,0 +1,102 @@
+# 📐 Mini Game Development Rules
+
+You are an expert developer proficient in Typescript, Python, React, Expo (React Native), Firebase, Turbo (Monorepo Management), i18next, Zustand, Tanstack React Query, FastAPI,
+
+## 🧠 Code Style and Structure
+
+- Use **TypeScript** for all frontend & **Python** (async) for all backend code.
+- Use FSD(Feature-sliced Design) for Frontend Code ONLY. (e.g. `entities/`, `features/`, `widgets/`)
+- Backend uses FastAPI + Python structure (api/, core/, services/, database/, etc.)
+- Avoid class-based design; use **pure functions**, **composition**, and **declarative logic**.
+- Structure files by **component** or **feature unit**, and export in this order:
+  - `components`, `subcomponents`, `helpers`, `static`, `types`
+- Prefer iteration and modularization over code duplication.
+- Use descriptive variable names with auxiliary verbs (e.g, `isLoading`, `hasError`).
+- Use **named exports** for functions, components, constants.
+- Directory naming uses **kebab-case** (e.g., `chat-input`, `audio-player`).
+- Co-locate styles with components in React Native.
+
+---
+
+## 🧱 TypeScript Usage (Frontend)
+
+- Use `interface` for props and data shapes.
+- Avoid `enum`; use `as const` with string literal unions or map objects.
+- Prefer `function` keyword for top-level pure functions.
+- Use descriptive names with intent (e.g., `hasAudio`, `isStreaming`, `shouldLoadTTS`).
+
+---
+
+## 🎨 UI and Styling (Frontend)
+
+- Use `StyleSheet.create` for React Native styles.
+- Implement **mobile-first**, responsive layouts.
+- Web & native style consistency is prioritized.
+- Avoid inline styles unless dynamic.
+
+---
+
+## ⚛️ State and Data Fetching (Frontend)
+
+- **Zustand** is the preferred state management library (with persist where needed).
+- Use **TanStack React Query** for all data fetching, caching, and mutations.
+- Avoid redundant `useEffect`; prefer **derived state**, selectors, and stable callbacks.
+
+---
+
+## 🌍 Internationalization (Frontend)
+
+- Use `i18next` (web) and `expo-localization` + `react-i18next` (native).
+- All UI-visible strings must be localized.
+- Translation keys must follow: `feature.key.label` pattern.
+
+---
+
+## ⚠️ Error Handling & Validation
+
+- Handle error cases early using **guard clauses**.
+- Return early for preconditions; avoid deep nesting.
+- All network errors are wrapped with custom messages or `ErrorBoundary`.
+- Validate user input using `zod` (TS) or `pydantic` (Python).
+- Backend APIs return standardized error shape `{ message, code, details? }`.
+
+---
+
+## 🚀 Monorepo Rules (Turbo)
+
+- Use `turbo.json` for all build/test/dev workflows.
+- All shared logic resides in `packages/`.
+- Never import `apps/*` code across boundaries.
+- Use workspace-alias imports (`import { x } from 'shared/utils'`).
+
+---
+
+## 🧪 Testing and QA
+
+- Write unit tests for components, hooks, and utils.
+- Use `@testing-library/react` or `vitest` for frontend, `pytest` for backend.
+- Each AI pipeline should have at least:
+  - prompt test
+  - tool test
+  - agent graph test
+
+---
+
+## 🧾 Commit & Branch Convention
+
+- Commit messages follow: `type(scope): message`
+  - e.g., `feat(ai): add langgraph agent for research mode`
+- Feature branches: `feature/<scope>-<description>`
+- PR titles and descriptions must include:
+  - What was done
+  - Why it matters
+  - Screenshots or logs (if visual/loggable)
+
+---
+
+## ❌ Strictly Forbidden
+
+- `any`, `@ts-ignore`, `console.log` in committed code
+- Cross-import between `apps/*`
+- `enum` declarations (use union types or map instead)
+- Long `useEffect` chains without cleanup
