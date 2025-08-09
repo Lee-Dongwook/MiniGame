@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ensureAnonymousLogin } from "@/shared/lib/firebase";
 import { useAuthStore } from "@/store/useAuthStore";
+import "@/shared/lib/i18n";
 
 export default function RootLayout() {
   const { setUid } = useAuthStore();

@@ -3,8 +3,11 @@ import { View, Text, Pressable } from "react-native";
 import { router } from "expo-router";
 import { useMutation } from "@tanstack/react-query";
 import { submitScore } from "@/features/score/api";
+import * as Haptics from "expo-haptics";
+import { useTranslation } from "react-i18next";
 
 export default function ReactionScreen() {
+  const { t } = useTranslation();
   const [state, setState] = useState<
     "idle" | "ready" | "now" | "between" | "done"
   >("idle");
@@ -32,6 +35,7 @@ export default function ReactionScreen() {
     setTimeout(() => {
       setState("now");
       startRef.current = performance.now();
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }, delay);
   }
 
@@ -44,6 +48,7 @@ export default function ReactionScreen() {
     if (state !== "now") return;
     const ms = Math.round(performance.now() - startRef.current);
     setResults((prev) => [...prev, ms]);
+    Haptics.selectionAsync();
     const nextRound = round + 1;
     setRound(nextRound);
     if (nextRound >= 5) {
@@ -63,42 +68,64 @@ export default function ReactionScreen() {
 
   return (
     <View style={{ padding: 16, gap: 12 }}>
-      <Text style={{ fontSize: 20, fontWeight: "700" }}>Reaction Test</Text>
+      <Text style={{ fontSize: 20, fontWeight: "700" }}>
+        {t("reaction.title")}
+      </Text>
 
       {state === "idle" && (
         <Pressable onPress={start}>
-          <Text>Start</Text>
+          <Text>{t("common.start")}</Text>
         </Pressable>
       )}
 
-      {state === "ready" && <Text>Wait...</Text>}
+      {state === "ready" && <Text>{t("reaction.wait")}</Text>}
 
       {state === "now" && (
         <Pressable onPress={tap}>
-          <Text>지금!</Text>
+          <Text>{t("reaction.now")}</Text>
         </Pressable>
       )}
 
-      {state === "between" && <Text>다음 라운드…</Text>}
+      {state === "between" && <Text>{t("reaction.next")}</Text>}
 
       {results.length > 0 && (
         <View style={{ gap: 6 }}>
-          <Text>Round: {round} / 5</Text>
-          <Text>Last: {results[results.length - 1]} ms</Text>
-          {best !== undefined && <Text>Best: {best} ms</Text>}
-          {avg !== undefined && <Text>Average: {avg} ms</Text>}
+          <Text>
+            {t("reaction.round")}: {round} / 5
+          </Text>
+          <Text>
+            {t("reaction.last")}: {results[results.length - 1]} ms
+          </Text>
+          {best !== undefined && (
+            <Text>
+              {t("reaction.best")}: {best} ms
+            </Text>
+          )}
+          {avg !== undefined && (
+            <Text>
+              {t("reaction.average")}: {avg} ms
+            </Text>
+          )}
         </View>
       )}
 
       {state === "done" && (
         <View style={{ gap: 8 }}>
-          <Text>최고 기록: {best} ms</Text>
-          <Text>평균: {avg} ms</Text>
+          <Text>
+            {t("reaction.bestLabel")}: {best} ms
+          </Text>
+          <Text>
+            {t("reaction.averageLabel")}: {avg} ms
+          </Text>
           <Pressable onPress={submit} disabled={submitMut.isPending}>
-            <Text>{submitMut.isPending ? "Submitting..." : "Submit"}</Text>
+            <Text>
+              {submitMut.isPending
+                ? t("common.submitting")
+                : t("common.submit")}
+            </Text>
           </Pressable>
           <Pressable onPress={() => router.push("/leaderboard")}>
-            <Text>리더보드 보기</Text>
+            <Text>{t("common.viewLeaderboard")}</Text>
           </Pressable>
         </View>
       )}

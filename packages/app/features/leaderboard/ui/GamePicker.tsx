@@ -1,5 +1,6 @@
 import { Pressable, View, Text } from "react-native";
 import type { GameId } from "../model";
+import { useTranslation } from "react-i18next";
 
 const GAMES: GameId[] = ["reaction", "memory", "stroop-swipe", "quick-math"];
 
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export function GamePicker({ value, onChange }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={{ flexDirection: "row", gap: 8, flexWrap: "wrap" }}>
       {GAMES.map((id) => (
@@ -23,7 +25,7 @@ export function GamePicker({ value, onChange }: Props) {
             opacity: value === id ? 1 : 0.6,
           }}
         >
-          <Text>{id}</Text>
+          <Text>{t(`leaderboard.game.${id}`)}</Text>
         </Pressable>
       ))}
     </View>

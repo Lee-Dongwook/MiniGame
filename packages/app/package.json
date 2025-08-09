@@ -11,6 +11,7 @@
     "lint": "expo lint"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.59.16",
     "@expo/vector-icons": "^14.1.0",
     "@expo/webpack-config": "^19.0.1",
     "@react-native-async-storage/async-storage": "^2.2.0",
