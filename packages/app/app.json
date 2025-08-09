@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "name": "minigame",
+    "slug": "minigame",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "minigame",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
