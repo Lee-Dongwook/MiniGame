@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "strictNullChecks": true,
+    "noUncheckedIndexedAccess": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "forceConsistentCasingInFileNames": true,
+    "downlevelIteration": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "paths": {
+      "app/*": ["./packages/app/*"]
+    },
+    "jsx": "react-jsx",
+    "types": ["node", "react"]
+  },
+  "include": ["**/*.ts", "**/*.tsx", "**/*.d.ts", "types/**/*.d.ts"]
+}
