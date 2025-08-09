@@ -12,6 +12,7 @@ export default function ReactionScreen() {
     "idle" | "ready" | "now" | "between" | "done"
   >("idle");
   const startRef = useRef<number>(0);
+  const sessionStartRef = useRef<number>(0);
   const [round, setRound] = useState<number>(0);
   const [results, setResults] = useState<number[]>([]);
   const best = results.length ? Math.min(...results) : undefined;
@@ -22,7 +23,15 @@ export default function ReactionScreen() {
   const submitMut = useMutation({
     mutationFn: async () => {
       if (!best) return { ok: true } as const;
-      return submitScore({ gameId: "reaction", score: best, runTimeMs: 0 });
+      const elapsedMs = Math.max(
+        100,
+        Math.round(performance.now() - sessionStartRef.current)
+      );
+      return submitScore({
+        gameId: "reaction",
+        score: best,
+        runTimeMs: elapsedMs,
+      });
     },
     onSuccess: () => {
       router.push("/leaderboard");
@@ -42,6 +51,7 @@ export default function ReactionScreen() {
   function start() {
     setRound(0);
     setResults([]);
+    sessionStartRef.current = performance.now();
     scheduleNextCue();
   }
   function tap() {

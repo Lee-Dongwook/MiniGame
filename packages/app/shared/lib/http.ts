@@ -13,6 +13,14 @@ export async function api<T>(path: string, init?: RequestInit): Promise<T> {
     },
   });
 
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  if (!res.ok) {
+    let reason: string | undefined;
+    try {
+      const data = (await res.json()) as { message?: string };
+      reason = data?.message;
+    } catch {}
+    const message = reason ?? `HTTP ${res.status}`;
+    throw new Error(message);
+  }
   return res.json() as Promise<T>;
 }

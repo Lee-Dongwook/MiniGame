@@ -21,6 +21,7 @@ export default function StroopSwipeScreen() {
   const [timeLeft, setTimeLeft] = useState(45);
   const [correct, setCorrect] = useState(0);
   const [mistake, setMistake] = useState(false);
+  const sessionStartRef = useRef<number>(0);
 
   const target = useMemo(() => randomDir(), [correct, mistake]);
   const confusion = useMemo(() => randomDir(), [correct, mistake]);
@@ -32,7 +33,10 @@ export default function StroopSwipeScreen() {
       submitScore({
         gameId: "stroop-swipe",
         score,
-        runTimeMs: 45_000 - timeLeft * 1000,
+        runTimeMs: Math.max(
+          100,
+          Math.round(performance.now() - sessionStartRef.current)
+        ),
       }),
     onSuccess: () => router.push("/leaderboard"),
   });
@@ -60,6 +64,7 @@ export default function StroopSwipeScreen() {
     setMistake(false);
     setTimeLeft(45);
     setPhase("play");
+    sessionStartRef.current = performance.now();
   }
 
   function answer(dir: Dir) {
@@ -125,7 +130,12 @@ export default function StroopSwipeScreen() {
                   borderRadius: 10,
                 }}
               >
-                <Text>{d}</Text>
+                <Text>
+                  {d === "LEFT" && "◀"}
+                  {d === "RIGHT" && "▶"}
+                  {d === "UP" && "▲"}
+                  {d === "DOWN" && "▼"}
+                </Text>
               </Pressable>
             ))}
           </View>

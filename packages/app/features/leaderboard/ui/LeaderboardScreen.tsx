@@ -75,7 +75,11 @@ export function LeaderboardScreen() {
           >
             <Text>#{index + 1}</Text>
             <Text>{item.uid.slice(0, 6)}</Text>
-            <Text>{item.score}</Text>
+            <Text>
+              {gameId === "reaction"
+                ? `${item.score} ${t("common.ms")}`
+                : item.score}
+            </Text>
           </View>
         )}
         onEndReachedThreshold={0.6}

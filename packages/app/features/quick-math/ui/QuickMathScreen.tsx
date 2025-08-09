@@ -40,6 +40,7 @@ export default function QuickMathScreen() {
   );
 
   const tickRef = useRef<NodeJS.Timeout | null>(null);
+  const sessionStartRef = useRef<number>(0);
 
   const score = Math.max(correctCount * 10 - wrongCount * 5, 0);
 
@@ -48,7 +49,10 @@ export default function QuickMathScreen() {
       submitScore({
         gameId: "quick-math",
         score,
-        runTimeMs: 60_000 - timeLeft * 1000,
+        runTimeMs: Math.max(
+          100,
+          Math.round(performance.now() - sessionStartRef.current)
+        ),
       }),
     onSuccess: () => router.push("/leaderboard"),
   });
@@ -84,6 +88,7 @@ export default function QuickMathScreen() {
     setCorrectCount(0);
     setWrongCount(0);
     setInput("");
+    sessionStartRef.current = performance.now();
   }
 
   function submitAnswer() {

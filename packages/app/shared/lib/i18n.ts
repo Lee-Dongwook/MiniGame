@@ -10,6 +10,7 @@ const resources = {
         submit: "Submit",
         submitting: "Submitting...",
         viewLeaderboard: "View Leaderboard",
+        ms: "ms",
       },
       home: {
         title: "Choose a game",
@@ -77,6 +78,7 @@ const resources = {
         submit: "제출",
         submitting: "제출 중...",
         viewLeaderboard: "리더보드 보기",
+        ms: "ms",
       },
       home: {
         title: "게임을 선택하세요",

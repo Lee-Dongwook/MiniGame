@@ -1,8 +1,9 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { View, Text, Pressable } from "react-native";
 import { useMutation } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { submitScore } from "@/features/score/api";
+import { useTranslation } from "react-i18next";
 
 type Phase = "idle" | "show" | "input" | "done";
 
@@ -21,21 +22,31 @@ function generateSequence(length: number, seed?: number): number[] {
 }
 
 export default function MemoryScreen() {
+  const { t } = useTranslation();
   const [level, setLevel] = useState(1);
   const [phase, setPhase] = useState<Phase>("idle");
   const [cursor, setCursor] = useState(0);
   const [seed] = useState(() => Math.floor(Math.random() * 1_000_000));
   const sequence = useMemo(() => generateSequence(level, seed), [level, seed]);
+  const sessionStartRef = useRef<number>(0);
 
   const submitMut = useMutation({
     mutationFn: async (finalLevel: number) =>
-      submitScore({ gameId: "memory", score: finalLevel, runTimeMs: 0 }),
+      submitScore({
+        gameId: "memory",
+        score: finalLevel,
+        runTimeMs: Math.max(
+          100,
+          Math.round(performance.now() - sessionStartRef.current)
+        ),
+      }),
     onSuccess: () => router.push("/leaderboard"),
   });
 
   function start() {
     setPhase("show");
     setCursor(0);
+    sessionStartRef.current = performance.now();
     setTimeout(() => setPhase("input"), Math.max(1500, level * 600));
   }
 
@@ -65,16 +76,18 @@ export default function MemoryScreen() {
 
   return (
     <View style={{ padding: 16, gap: 12 }}>
-      <Text style={{ fontSize: 20, fontWeight: "700" }}>Memory</Text>
+      <Text style={{ fontSize: 20, fontWeight: "700" }}>
+        {t("memory.title")}
+      </Text>
       {phase === "idle" && (
         <Pressable onPress={start}>
-          <Text>Start</Text>
+          <Text>{t("common.start")}</Text>
         </Pressable>
       )}
 
       {phase === "show" && (
         <View style={{ gap: 8 }}>
-          <Text>기억하세요...</Text>
+          <Text>{t("memory.remember")}</Text>
           <Text>
             {sequence.map((n) => ["▲", "▶", "▼", "◀"][n]).join(" ")}
           </Text>
@@ -84,7 +97,7 @@ export default function MemoryScreen() {
       {phase === "input" && (
         <View style={{ gap: 10 }}>
           <Text>
-            따라 눌러보세요 ({cursor + 1}/{sequence.length})
+            {t("memory.follow")} ({cursor + 1}/{sequence.length})
           </Text>
           <View style={{ flexDirection: "row", gap: 10, flexWrap: "wrap" }}>
             {[0, 1, 2, 3].map((n) => (
@@ -111,12 +124,18 @@ export default function MemoryScreen() {
 
       {phase === "done" && (
         <View style={{ gap: 8 }}>
-          <Text>최종 레벨: {level - 1}</Text>
+          <Text>
+            {t("memory.finalLevel")}: {level - 1}
+          </Text>
           <Pressable onPress={submit} disabled={submitMut.isPending}>
-            <Text>{submitMut.isPending ? "Submitting..." : "Submit"}</Text>
+            <Text>
+              {submitMut.isPending
+                ? t("common.submitting")
+                : t("common.submit")}
+            </Text>
           </Pressable>
           <Pressable onPress={() => router.push("/leaderboard")}>
-            <Text>리더보드 보기</Text>
+            <Text>{t("common.viewLeaderboard")}</Text>
           </Pressable>
         </View>
       )}
